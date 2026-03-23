@@ -33,19 +33,13 @@ export const useAudit = () => {
   };
 
   const addFiles = async (newFiles: File[]) => {
-    // Use the current state as the starting point for our "naming database"
-    let currentNames = files.map((f) => f.name);
+    const currentNames = files.map((f) => f.name);
 
     const parsed = await Promise.all(
       newFiles.map(async (f) => {
         const json = JSON.parse(await f.text());
         const { res, schema } = flatten(json);
-
-        // 1. Calculate the unique name based on our local tracker
         const uniqueName = getUniqueName(f.name, currentNames);
-
-        // 2. Update our tracker immediately so the NEXT file in this loop
-        // knows this name is now "taken"
         currentNames.push(uniqueName);
 
         return {
@@ -55,8 +49,6 @@ export const useAudit = () => {
         };
       })
     );
-
-    // 3. One single state update at the end
     setFiles((prev) => [...prev, ...parsed]);
   };
 
@@ -149,8 +141,6 @@ export const useAudit = () => {
       prev.map((file) => {
         const newData = { ...file.flatData };
         delete newData[keyToDelete];
-
-        // Also remove from schema to keep things clean
         const newSchema = new Map(file.schema);
         newSchema.delete(keyToDelete);
 
@@ -175,9 +165,6 @@ export const useAudit = () => {
         flatData: {},
         schema: new Map(),
       };
-
-      // If we already have keys in other files,
-      // we should initialize this new file with those keys as empty strings
       if (allKeys.length > 0) {
         allKeys.forEach((key) => {
           newFile.flatData[key] = '';
@@ -208,8 +195,6 @@ export const useAudit = () => {
       if (draggedIdx === -1 || targetIdx === -1) return prev;
 
       const [removed] = newFiles.splice(draggedIdx, 1);
-
-      // Re-calculate target index after removal
       targetIdx = newFiles.findIndex((f) => f.name === targetName);
       const finalIdx = side === 'right' ? targetIdx + 1 : targetIdx;
 
