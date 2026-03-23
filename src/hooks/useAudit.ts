@@ -195,18 +195,25 @@ export const useAudit = () => {
     });
   };
 
-  const moveFile = (draggedName: string, targetName: string) => {
+  const moveFile = (
+    draggedName: string,
+    targetName: string,
+    side: 'left' | 'right'
+  ) => {
     setFiles((prev) => {
       const newFiles = [...prev];
       const draggedIdx = newFiles.findIndex((f) => f.name === draggedName);
-      const targetIdx = newFiles.findIndex((f) => f.name === targetName);
+      let targetIdx = newFiles.findIndex((f) => f.name === targetName);
 
       if (draggedIdx === -1 || targetIdx === -1) return prev;
 
-      // Remove the dragged file and insert it at the target position
       const [removed] = newFiles.splice(draggedIdx, 1);
-      newFiles.splice(targetIdx, 0, removed);
 
+      // Re-calculate target index after removal
+      targetIdx = newFiles.findIndex((f) => f.name === targetName);
+      const finalIdx = side === 'right' ? targetIdx + 1 : targetIdx;
+
+      newFiles.splice(finalIdx, 0, removed);
       return newFiles;
     });
   };

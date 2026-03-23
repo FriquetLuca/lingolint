@@ -5,7 +5,11 @@ interface EditableHeaderProps {
   name: string;
   onRename: (n: string) => void;
   onRemove: (fileName: string) => void;
-  onMove: (draggedName: string, targetName: string) => void;
+  onMove: (
+    draggedName: string,
+    targetName: string,
+    dropSide: 'left' | 'right'
+  ) => void;
 }
 
 export default function EditableHeader({
@@ -16,6 +20,8 @@ export default function EditableHeader({
 }: EditableHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(name);
+  const [isOver, setIsOver] = useState(false);
+  const [dropSide, setDropSide] = useState<'left' | 'right'>('left');
 
   const handleBlur = () => {
     setIsEditing(false);
@@ -33,26 +39,49 @@ export default function EditableHeader({
   };
 
   const handleDrop = (e: React.DragEvent) => {
-    // 1. Stop the event from bubbling up to the App's handleDrop!
-    e.stopPropagation();
     e.preventDefault();
+    e.stopPropagation();
+    setIsOver(false);
 
     const draggedName = e.dataTransfer.getData(
       'application/x-polyfiller-column'
     );
     if (draggedName && draggedName !== name) {
-      onMove(draggedName, name);
+      // Logic: If dropped on the right, we move it to the next index
+      onMove(draggedName, name, dropSide);
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Determine if we are hovering on the left or right half of this column
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const side = x < rect.width / 2 ? 'left' : 'right';
+    setDropSide(side);
+    setIsOver(true);
+
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDragLeave = () => setIsOver(false);
+
   return (
-    <div className="sticky top-0 z-40 bg-slate-800 border-b border-r border-slate-700">
+    <div
+      className={`sticky top-0 z-40 bg-slate-800 border-b border-r border-slate-700 
+          ${isOver && dropSide === 'left' ? 'border-l-4 border-l-blue-500 bg-blue-500/5' : ''}
+          ${isOver && dropSide === 'right' ? 'border-r-4 border-r-blue-500 bg-blue-500/5' : ''}
+        `}
+    >
       <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-widest border-l border-slate-800">
         <div
-          className="group relative h-full flex items-center min-h-11" // Fixed min-height to prevent row jumping
+          className="group relative h-full flex items-center min-h-11"
           onClick={() => !isEditing && setIsEditing(true)}
           onDragEnd={handleDragEnd}
-          onDragOver={(e) => e.preventDefault()} // Necessary to allow drop
+          onDragOver={handleDragOver} // Necessary to allow drop
+          onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
           <div
