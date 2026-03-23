@@ -36,8 +36,6 @@ export const useAudit = () => {
       newFiles.map(async (f) => {
         const json = JSON.parse(await f.text());
         const { res, schema } = flatten(json);
-
-        // Use the functional state update to check against existing names
         let fileName = '';
         setFiles((prev) => {
           fileName = getUniqueName(f.name, prev);
@@ -45,7 +43,7 @@ export const useAudit = () => {
         });
 
         return {
-          name: fileName, // Now just "en" or "fr (1)"
+          name: fileName,
           flatData: res,
           schema,
         };
@@ -70,22 +68,17 @@ export const useAudit = () => {
   };
 
   const addGlobalKey = (path: string) => {
-    // 1. Add to the "New Keys" list (prepended)
     setNewKeys((prev) => [path, ...prev]);
-
-    // 2. Update all files with the empty value and schema
     setFiles((prev) =>
       prev.map((file) => {
         const newSchema = new Map(file.schema);
         const parts = path.split('.');
-
         parts.forEach((_, index) => {
           if (index < parts.length - 1) {
             const parentPath = parts.slice(0, index + 1).join('.');
             if (!newSchema.has(parentPath)) newSchema.set(parentPath, Object);
           }
         });
-
         return {
           ...file,
           flatData: { ...file.flatData, [path]: '' },
@@ -99,12 +92,10 @@ export const useAudit = () => {
     if (!newName || oldName === newName) return;
 
     setFiles((prev) => {
-      // Check if the new name already exists to avoid collisions
       const nameExists = prev.some((f) => f.name === newName);
       const finalName = nameExists
         ? getUniqueName(`${newName}.json`, prev)
         : newName;
-
       return prev.map((file) =>
         file.name === oldName ? { ...file, name: finalName } : file
       );
@@ -118,7 +109,6 @@ export const useAudit = () => {
         if (!newKeys.includes(k)) existing.add(k);
       })
     );
-
     return [...newKeys, ...Array.from(existing).sort()];
   }, [files, newKeys]);
 

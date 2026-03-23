@@ -1,6 +1,6 @@
 import type { FileData } from '../hooks/useAudit';
 
-export const rebuildJSON = (file: FileData) => {
+export function rebuildJSON(file: FileData) {
   const result: any = {};
 
   Object.keys(file.flatData).forEach((path) => {
@@ -24,4 +24,4 @@ export const rebuildJSON = (file: FileData) => {
   });
 
   return result;
-};
+}

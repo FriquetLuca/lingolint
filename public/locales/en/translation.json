@@ -1,0 +1,20 @@
+{
+  "header": {
+    "add_json": "Add JSON",
+    "export": "Export",
+    "key_placeholder": "new.key.path...",
+    "button_title": "Add Key to all files"
+  },
+  "dragging_overlay": {
+    "release": "Release to upload"
+  },
+  "dropping_background": {
+    "label": "Drop files to get started"
+  },
+  "key_path_cell": {
+    "new": "New"
+  },
+  "app": {
+    "key_header": "Key Path"
+  }
+}

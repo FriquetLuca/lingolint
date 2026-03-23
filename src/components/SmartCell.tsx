@@ -20,20 +20,12 @@ export const SmartCell = ({
   const adjustHeight = () => {
     const node = textareaRef.current;
     if (node) {
-      // 1. Reset to allow shrinking
       node.style.height = 'auto';
-      // 2. Set to scrollHeight to match content
       node.style.height = `${node.scrollHeight}px`;
     }
   };
 
-  // Trigger resize when:
-  // 1. The value changes
-  // 2. A NEW file is added (filesCount changes)
-  // 3. The component first mounts
   useEffect(() => {
-    // We use requestAnimationFrame to ensure the DOM has
-    // painted the new Grid columns before we measure.
     const offset = requestAnimationFrame(() => {
       adjustHeight();
     });
@@ -45,18 +37,15 @@ export const SmartCell = ({
   }, [value]);
 
   return (
-    <div className="p-1 h-full border-t border-l border-slate-800 relative group-hover:bg-slate-800/10 transition-colors">
-      <div className="p-1 h-full w-full bg-red-600/10 rounded-2xl">
+    <div className="p-1 h-full border-b border-r border-slate-700 relative group-hover:bg-slate-800 transition-colors">
+      <div className="h-full w-full bg-cyan-950 rounded-2xl border border-slate-700">
         <textarea
           ref={textareaRef}
           defaultValue={value}
-          rows={1} // CRITICAL: Tells the browser to start at 1-line height
+          rows={1}
           onBlur={(e) => onUpdate(fileName, translationKey, e.target.value)}
-          className={`
-            w-full p-2 text-sm font-sans leading-tight outline-none block overflow-hidden
-            resize-none bg-transparent text-slate-300 min-h-0 h-auto
-          `}
-          style={{ minHeight: 'unset', height: 'auto' }} // Inline override to beat Tailwind/Global CSS
+          className="w-full p-2 text-sm font-sans leading-tight outline-none block overflow-hidden resize-none bg-transparent text-slate-300 min-h-0 h-auto"
+          style={{ minHeight: 'unset', height: 'auto' }}
           onInput={adjustHeight}
         />
       </div>
