@@ -15,7 +15,6 @@
     "delete": "Delete key from all files"
   },
   "app": {
-    "key_header": "Key Path",
     "key_placeholder": "new.key.path...",
     "button_title": "Add Key to all files"
   }
