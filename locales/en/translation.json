@@ -2,9 +2,7 @@
   "header": {
     "add_json": "Add JSON",
     "new_json": "New JSON",
-    "export": "Export",
-    "key_placeholder": "new.key.path...",
-    "button_title": "Add Key to all files"
+    "export": "Export"
   },
   "dragging_overlay": {
     "release": "Release to upload"
@@ -17,6 +15,7 @@
     "delete": "Delete key from all files"
   },
   "app": {
-    "key_header": "Key Path"
+    "key_placeholder": "new.key.path...",
+    "button_title": "Add Key to all files"
   }
 }
