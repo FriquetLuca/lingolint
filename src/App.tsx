@@ -26,15 +26,26 @@ export default function App() {
     deleteGlobalKey,
     createEmptyFile,
     removeFile,
+    moveFile,
   } = useAudit();
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
+    // 2. CHECK: Is this a column move? If so, bail out!
+    if (e.dataTransfer.types.includes('application/x-polyfiller-column')) {
+      return;
+    }
+
     e.preventDefault();
     setIsDragging(true);
   };
 
-  const handleDragLeave = () => {
+  const handleDragLeave = (e: React.DragEvent) => {
+    // 2. CHECK: Is this a column move? If so, bail out!
+    if (e.dataTransfer.types.includes('application/x-polyfiller-column')) {
+      return;
+    }
+
     setIsDragging(false);
   };
 
@@ -42,6 +53,12 @@ export default function App() {
     e.preventDefault();
     setIsDragging(false);
 
+    // 2. CHECK: Is this a column move? If so, bail out!
+    if (e.dataTransfer.types.includes('application/x-polyfiller-column')) {
+      return;
+    }
+
+    // 3. Existing file logic
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files).filter(
         (file) =>
@@ -109,6 +126,7 @@ export default function App() {
               name={f.name}
               onRename={(newName) => renameFile(f.name, newName)}
               onRemove={removeFile}
+              onMove={moveFile}
             />
           ))}
         </div>
