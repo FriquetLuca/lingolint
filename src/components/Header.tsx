@@ -1,14 +1,11 @@
 import { Download, Plus, TableIcon, Upload } from 'lucide-react';
-import AddKeyInput from './AddKeyInput';
 import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
   isFileOpen: boolean;
-  fileKeys: string[];
   handleDragOver?: React.DragEventHandler<HTMLElement> | undefined;
   handleDragLeave?: React.DragEventHandler<HTMLElement> | undefined;
   handleDrop?: React.DragEventHandler<HTMLElement> | undefined;
-  addGlobalKey: (path: string) => void;
   createEmptyFile: () => void;
   addFiles: (newFiles: File[]) => Promise<void>;
   handleExport: () => Promise<void>;
@@ -16,11 +13,9 @@ interface HeaderProps {
 
 export default function Header({
   isFileOpen,
-  fileKeys,
   handleDragOver,
   handleDragLeave,
   handleDrop,
-  addGlobalKey,
   handleExport,
   addFiles,
   createEmptyFile,
@@ -41,14 +36,6 @@ export default function Header({
       </div>
 
       <div className="flex items-center gap-4">
-        {isFileOpen && (
-          <AddKeyInput
-            onAdd={addGlobalKey}
-            existingKeys={fileKeys}
-            placeholder={t('header.key_placeholder')}
-            buttonTitle={t('header.button_title')}
-          />
-        )}
         <button
           onClick={createEmptyFile}
           className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-all text-sm font-medium text-slate-200"

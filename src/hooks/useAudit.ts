@@ -33,24 +33,30 @@ export const useAudit = () => {
   };
 
   const addFiles = async (newFiles: File[]) => {
+    // Use the current state as the starting point for our "naming database"
+    let currentNames = files.map((f) => f.name);
+
     const parsed = await Promise.all(
       newFiles.map(async (f) => {
         const json = JSON.parse(await f.text());
         const { res, schema } = flatten(json);
-        let fileName = '';
-        setFiles((prev) => {
-          fileName = getUniqueName(f.name, prev);
-          return prev;
-        });
+
+        // 1. Calculate the unique name based on our local tracker
+        const uniqueName = getUniqueName(f.name, currentNames);
+
+        // 2. Update our tracker immediately so the NEXT file in this loop
+        // knows this name is now "taken"
+        currentNames.push(uniqueName);
 
         return {
-          name: fileName,
+          name: uniqueName,
           flatData: res,
           schema,
         };
       })
     );
 
+    // 3. One single state update at the end
     setFiles((prev) => [...prev, ...parsed]);
   };
 
@@ -117,7 +123,10 @@ export const useAudit = () => {
     setFiles((prev) => {
       const nameExists = prev.some((f) => f.name === newName);
       const finalName = nameExists
-        ? getUniqueName(`${newName}.json`, prev)
+        ? getUniqueName(
+            `${newName}.json`,
+            prev.map((p) => p.name)
+          )
         : newName;
       return prev.map((file) =>
         file.name === oldName ? { ...file, name: finalName } : file
@@ -157,7 +166,10 @@ export const useAudit = () => {
 
   const createEmptyFile = () => {
     setFiles((prev) => {
-      const newName = getUniqueName('translation.json', prev);
+      const newName = getUniqueName(
+        'new translation.json',
+        prev.map((p) => p.name)
+      );
       const newFile: FileData = {
         name: newName,
         flatData: {},

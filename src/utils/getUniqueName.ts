@@ -1,10 +1,8 @@
-import type { FileData } from '../hooks/useAudit';
-
-export function getUniqueName(name: string, existingFiles: FileData[]) {
+export function getUniqueName(name: string, currentNames: string[]) {
   const baseName = name.replace(/\.json$/i, '');
   let finalName = baseName;
   let counter = 1;
-  while (existingFiles.some((f) => f.name === finalName)) {
+  while (currentNames.some((f) => f === finalName)) {
     finalName = `${baseName} (${counter})`;
     counter++;
   }

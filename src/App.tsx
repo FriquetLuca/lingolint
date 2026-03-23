@@ -10,6 +10,7 @@ import DraggingOverlay from './components/DraggingOverlay';
 import Header from './components/Header';
 import SmartTable from './components/SmartTable';
 import { useTranslation } from 'react-i18next';
+import AddKeyInput from './components/AddKeyInput';
 
 export default function App() {
   const { t } = useTranslation();
@@ -93,7 +94,14 @@ export default function App() {
       >
         <div className="contents">
           <div className="sticky top-0 left-0 z-50 px-4 py-2 bg-slate-800 border-b border-r border-slate-700 text-xs font-bold text-slate-400 uppercase tracking-widest min-h-11 flex items-center">
-            {t('app.key_header')}
+            {files.length > 0 && (
+              <AddKeyInput
+                onAdd={addGlobalKey}
+                existingKeys={allKeys}
+                placeholder={t('app.key_placeholder')}
+                buttonTitle={t('app.button_title')}
+              />
+            )}
           </div>
           {files.map((f) => (
             <EditableHeader
