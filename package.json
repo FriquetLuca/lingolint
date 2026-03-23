@@ -1,20 +1,20 @@
 {
-  "name": "TEMPLATE_NAME",
+  "name": "lingolint",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "TEMPLATE_DESCRIPTION",
+  "description": "The structural i18n auditor that fills the gaps without breaking the shape.",
   "license": "MIT",
-  "author": "TEMPLATE_OWNER",
+  "author": "FriquetLuca",
   "keywords": [],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TEMPLATE_OWNER/TEMPLATE_NAME.git"
+    "url": "git+https://github.com/FriquetLuca/lingolint.git"
   },
   "bugs": {
-    "url": "https://github.com/TEMPLATE_OWNER/TEMPLATE_NAME/issues"
+    "url": "https://github.com/FriquetLuca/lingolint/issues"
   },
-  "homepage": "https://github.com/TEMPLATE_OWNER/TEMPLATE_NAME#readme",
+  "homepage": "https://github.com/FriquetLuca/lingolint#readme",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

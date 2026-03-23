@@ -1,12 +1,12 @@
-# TEMPLATE_PRETTY_NAME
+# Lingolint
 
-![Build Status](https://github.com/TEMPLATE_OWNER/TEMPLATE_NAME/actions/workflows/deploy.yml/badge.svg)
+![Build Status](https://github.com/FriquetLuca/lingolint/actions/workflows/deploy.yml/badge.svg)
 
 A React + Vite + TypeScript project with i18n support.
 
 ## 🚀 Live Demo
 
-Check out the live site here: [TEMPLATE_URL](TEMPLATE_URL)
+Check out the live site here: [https://FriquetLuca.github.io/lingolint/](https://FriquetLuca.github.io/lingolint/)
 
 ## 🛠 Features
 
@@ -24,7 +24,7 @@ To add new languages, navigate to `public/locales/` and add your JSON files.
 1. Clone the repo:
 
    ```bash
-   git clone [https://github.com/TEMPLATE_OWNER/TEMPLATE_NAME.git](https://github.com/TEMPLATE_OWNER/TEMPLATE_NAME.git)
+   git clone [https://github.com/FriquetLuca/lingolint.git](https://github.com/FriquetLuca/lingolint.git)
    ```
 
 2. Install your project locally using `npm install` and run it using `npm run dev`.
@@ -35,4 +35,4 @@ To add new languages, navigate to `public/locales/` and add your JSON files.
 
 2. Under the `Build and deployment` category, make sure the source is set to `Deploy from a branch` and set your branch to `gh-pages` and the folder to `/(root)`.
 
-3. Once `deploy.yml` has run after a push on either `main` or `master` branch, you'll be able to see your website [HERE](TEMPLATE_URL) (See the link in the Live Demo section).
+3. Once `deploy.yml` has run after a push on either `main` or `master` branch, you'll be able to see your website [HERE](https://FriquetLuca.github.io/lingolint/) (See the link in the Live Demo section).

@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://vite.dev/config/
 export default defineConfig(({ command }) => {
   return {
-    base: command === 'build' ? '/TEMPLATE_NAME/' : '/',
+    base: command === 'build' ? '/lingolint/' : '/',
     plugins: [
       react({
         babel: {
