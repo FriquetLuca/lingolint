@@ -23,6 +23,7 @@ export default function App() {
     newKeys,
     renameFile,
     deleteGlobalKey,
+    createEmptyFile,
   } = useAudit();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -78,6 +79,7 @@ export default function App() {
           addGlobalKey,
           handleExport,
           addFiles,
+          createEmptyFile,
         }}
       />
       <SmartTable

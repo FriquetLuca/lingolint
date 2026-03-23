@@ -69,17 +69,39 @@ export const useAudit = () => {
   };
 
   const addGlobalKey = (path: string) => {
+    const isConflict = allKeys.some((existingKey) => {
+      if (path.startsWith(existingKey + '.')) {
+        alert(
+          `Conflict: "${existingKey}" is already a string and cannot have children.`
+        );
+        return true;
+      }
+      if (existingKey.startsWith(path + '.')) {
+        alert(
+          `Conflict: "${path}" is already an object containing "${existingKey}".`
+        );
+        return true;
+      }
+      return false;
+    });
+
+    if (isConflict) return;
+
     setNewKeys((prev) => [path, ...prev]);
     setFiles((prev) =>
       prev.map((file) => {
         const newSchema = new Map(file.schema);
         const parts = path.split('.');
+
         parts.forEach((_, index) => {
           if (index < parts.length - 1) {
             const parentPath = parts.slice(0, index + 1).join('.');
-            if (!newSchema.has(parentPath)) newSchema.set(parentPath, Object);
+            if (!newSchema.has(parentPath)) {
+              newSchema.set(parentPath, Object);
+            }
           }
         });
+
         return {
           ...file,
           flatData: { ...file.flatData, [path]: '' },
@@ -133,6 +155,27 @@ export const useAudit = () => {
     setNewKeys((prev) => prev.filter((k) => k !== keyToDelete));
   };
 
+  const createEmptyFile = () => {
+    setFiles((prev) => {
+      const newName = getUniqueName('translation.json', prev);
+      const newFile: FileData = {
+        name: newName,
+        flatData: {},
+        schema: new Map(),
+      };
+
+      // If we already have keys in other files,
+      // we should initialize this new file with those keys as empty strings
+      if (allKeys.length > 0) {
+        allKeys.forEach((key) => {
+          newFile.flatData[key] = '';
+        });
+      }
+
+      return [...prev, newFile];
+    });
+  };
+
   return {
     files,
     setFiles,
@@ -142,6 +185,7 @@ export const useAudit = () => {
     updateKey,
     addGlobalKey,
     deleteGlobalKey,
+    createEmptyFile,
     newKeys,
   };
 };

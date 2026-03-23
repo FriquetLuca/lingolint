@@ -1,4 +1,4 @@
-import { Download, TableIcon, Upload } from 'lucide-react';
+import { Download, Plus, TableIcon, Upload } from 'lucide-react';
 import AddKeyInput from './AddKeyInput';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +9,7 @@ interface HeaderProps {
   handleDragLeave?: React.DragEventHandler<HTMLElement> | undefined;
   handleDrop?: React.DragEventHandler<HTMLElement> | undefined;
   addGlobalKey: (path: string) => void;
+  createEmptyFile: () => void;
   addFiles: (newFiles: File[]) => Promise<void>;
   handleExport: () => Promise<void>;
 }
@@ -22,6 +23,7 @@ export default function Header({
   addGlobalKey,
   handleExport,
   addFiles,
+  createEmptyFile,
 }: HeaderProps) {
   const { t } = useTranslation();
   return (
@@ -47,6 +49,13 @@ export default function Header({
             buttonTitle={t('header.button_title')}
           />
         )}
+        <button
+          onClick={createEmptyFile}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-all text-sm font-medium text-slate-200"
+        >
+          <Plus size={16} className="text-emerald-400" />
+          {t('header.new_json')}
+        </button>
         <label className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg cursor-pointer text-sm">
           <Upload size={16} className="text-blue-400" />
           {t('header.add_json')}
