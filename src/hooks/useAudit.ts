@@ -14,6 +14,7 @@ export const useAudit = () => {
   const [files, setFiles] = useState<FileData[]>([]);
 
   const flatten = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     obj: any,
     prefix = '',
     schema = new Map<string, SchemaType>(),

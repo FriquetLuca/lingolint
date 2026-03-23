@@ -1,6 +1,7 @@
 import type { FileData } from '../hooks/useAudit';
 
 export function rebuildJSON(file: FileData) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: any = {};
 
   Object.keys(file.flatData).forEach((path) => {
