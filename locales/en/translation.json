@@ -12,7 +12,8 @@
     "label": "Drop files to get started"
   },
   "smart_key_cell": {
-    "new": "New"
+    "new": "New",
+    "delete": "Delete key from all files"
   },
   "app": {
     "key_header": "Key Path"
