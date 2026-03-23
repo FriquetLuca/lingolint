@@ -1,14 +1,16 @@
-import { Edit2, Check } from 'lucide-react';
+import { Edit2, Check, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface EditableHeaderProps {
   name: string;
   onRename: (n: string) => void;
+  onRemove: (fileName: string) => void;
 }
 
 export default function EditableHeader({
   name,
   onRename,
+  onRemove,
 }: EditableHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(name);
@@ -40,10 +42,26 @@ export default function EditableHeader({
           ) : (
             <div className="w-full h-full flex items-center justify-between px-4 transition-colors">
               <span className="truncate py-1">{name}</span>
-              <Edit2
-                size={12}
-                className="opacity-0 group-hover:opacity-100 text-slate-500 transition-opacity ml-2 shrink-0"
-              />
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="p-1 hover:text-blue-400 text-slate-500"
+                >
+                  <Edit2
+                    size={12}
+                    className="opacity-0 group-hover:opacity-100 text-slate-500 transition-opacity ml-2 shrink-0"
+                  />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm(`Delete ${name}?`)) onRemove(name);
+                  }}
+                  className="p-1 hover:text-red-400 text-slate-500"
+                >
+                  <X size={14} />
+                </button>
+              </div>
             </div>
           )}
         </div>

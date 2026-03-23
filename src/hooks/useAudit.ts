@@ -176,6 +176,13 @@ export const useAudit = () => {
     });
   };
 
+  const removeFile = (fileName: string) => {
+    setFiles((prev) => {
+      const updated = prev.filter((f) => f.name !== fileName);
+      return updated;
+    });
+  };
+
   return {
     files,
     setFiles,
@@ -186,6 +193,7 @@ export const useAudit = () => {
     addGlobalKey,
     deleteGlobalKey,
     createEmptyFile,
+    removeFile,
     newKeys,
   };
 };

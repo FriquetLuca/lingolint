@@ -24,6 +24,7 @@ export default function App() {
     renameFile,
     deleteGlobalKey,
     createEmptyFile,
+    removeFile,
   } = useAudit();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -99,6 +100,7 @@ export default function App() {
               key={f.name}
               name={f.name}
               onRename={(newName) => renameFile(f.name, newName)}
+              onRemove={removeFile}
             />
           ))}
         </div>
