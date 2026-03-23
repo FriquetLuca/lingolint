@@ -1,5 +1,6 @@
 import { Edit2, Check, X, GripVertical } from 'lucide-react';
 import { useState } from 'react';
+import type { ModalConfig } from './Modal';
 
 interface EditableHeaderProps {
   name: string;
@@ -10,6 +11,7 @@ interface EditableHeaderProps {
     targetName: string,
     dropSide: 'left' | 'right'
   ) => void;
+  setModalConfig: (config: ModalConfig) => void;
 }
 
 export default function EditableHeader({
@@ -17,6 +19,7 @@ export default function EditableHeader({
   onRename,
   onRemove,
   onMove,
+  setModalConfig,
 }: EditableHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(name);
@@ -119,7 +122,17 @@ export default function EditableHeader({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (window.confirm(`Delete ${name}?`)) onRemove(name);
+                    setModalConfig({
+                      type: 'confirm',
+                      title: 'editable_header.confirm_title',
+                      message: 'editable_header.message',
+                      confirmText: 'editable_header.yes',
+                      cancelText: 'editable_header.no',
+                      datas: {
+                        name,
+                      },
+                      onConfirm: () => onRemove(name),
+                    });
                   }}
                   className="p-1 hover:text-red-400 text-slate-500"
                 >

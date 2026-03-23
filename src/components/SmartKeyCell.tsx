@@ -1,16 +1,19 @@
 import { Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import type { ModalConfig } from './Modal';
 
 interface SmartKeyCellProps {
   translationKey: string;
   isNew?: boolean;
   onDelete: (keyToDelete: string) => void;
+  setModalConfig: (config: ModalConfig) => void;
 }
 
 export default function SmartKeyCell({
   translationKey,
   isNew,
   onDelete,
+  setModalConfig,
 }: SmartKeyCellProps) {
   const { t } = useTranslation();
   return (
@@ -28,7 +31,19 @@ export default function SmartKeyCell({
           )}
         </div>
         <button
-          onClick={() => onDelete(translationKey)}
+          onClick={() =>
+            setModalConfig({
+              type: 'confirm',
+              title: 'smart_key_cell.delete_title',
+              message: 'smart_key_cell.delete_message',
+              confirmText: 'smart_key_cell.yes',
+              cancelText: 'smart_key_cell.no',
+              datas: {
+                translationKey,
+              },
+              onConfirm: () => onDelete(translationKey),
+            })
+          }
           className="px-1 py-0.5 group-hover/key:opacity-100 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded transition-all"
           title={t('smart_key_cell.delete')}
         >

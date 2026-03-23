@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { getUniqueName } from '../utils/getUniqueName';
-import type { ModalConfig } from '../components/Modal';
 
 export type SchemaType = typeof Array | typeof Object;
 
@@ -10,11 +9,7 @@ export interface FileData {
   schema: Map<string, SchemaType>;
 }
 
-interface useAuditProps {
-  setModalConfig: (config: ModalConfig) => void;
-}
-
-export const useAudit = ({ setModalConfig }: useAuditProps) => {
+export const useAudit = () => {
   const [newKeys, setNewKeys] = useState<string[]>([]);
   const [files, setFiles] = useState<FileData[]>([]);
 

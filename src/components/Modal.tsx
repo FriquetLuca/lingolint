@@ -6,6 +6,7 @@ export interface ModalConfig {
   type: 'error' | 'confirm';
   title: string;
   message: string;
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   datas?: {};
   confirmText?: string;
   cancelText?: string;

@@ -12,7 +12,11 @@
   },
   "smart_key_cell": {
     "new": "New",
-    "delete": "Delete key from all files"
+    "delete": "Delete key from all files",
+    "delete_title": "Delete a JSON key",
+    "delete_message": "Are you sure you want to delete \"{{translationKey}}.json\"?",
+    "yes": "Yes",
+    "no": "No"
   },
   "app": {
     "key_placeholder": "new.key.path...",
@@ -28,5 +32,11 @@
     "key_exist": "The key \"{{existingKey}}\" already exist.",
     "string_parent": "\"{{parentKey}}\" is already a string and cannot have the children \"{{existingKey}}\".",
     "is_parent": "\"{{existingKey}}\" is already a parent of existing data."
+  },
+  "editable_header": {
+    "confirm_title": "Delete a JSON file",
+    "message": "Are you sure you want to delete \"{{name}}.json\"?",
+    "yes": "Yes",
+    "no": "No"
   }
 }

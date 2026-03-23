@@ -19,6 +19,7 @@ export default function AddKeyInput({
 }: AddKeyInputProps) {
   const [error, setError] = useState<{
     key: string;
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     data?: {} | undefined;
   } | null>(null);
   const [val, setVal] = useState('');

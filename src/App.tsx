@@ -31,7 +31,7 @@ export default function App() {
     createEmptyFile,
     removeFile,
     moveFile,
-  } = useAudit({ setModalConfig });
+  } = useAudit();
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -126,6 +126,7 @@ export default function App() {
                 onRename={(newName) => renameFile(f.name, newName)}
                 onRemove={removeFile}
                 onMove={moveFile}
+                setModalConfig={setModalConfig}
               />
             ))}
           </div>
@@ -135,6 +136,7 @@ export default function App() {
                 translationKey={key}
                 isNew={newKeys.includes(key)}
                 onDelete={deleteGlobalKey}
+                setModalConfig={setModalConfig}
               />
               {files.map((file) => (
                 <SmartCell
@@ -167,7 +169,7 @@ export default function App() {
         }
         cancelText={
           modalConfig !== null
-            ? t(modalConfig.confirmText ?? 'modal.cancel', modalConfig.datas)
+            ? t(modalConfig.cancelText ?? 'modal.cancel', modalConfig.datas)
             : t('modal.cancel')
         }
       />
@@ -189,7 +191,9 @@ export default function App() {
             onClick={() => setModalConfig(null)}
             className="px-4 py-2 bg-slate-800 rounded-lg hover:bg-slate-700"
           >
-            Dismiss
+            {modalConfig !== null
+              ? t(modalConfig.cancelText ?? 'modal.cancel', modalConfig.datas)
+              : t('modal.cancel')}
           </button>
         </div>
       </Modal>
