@@ -22,6 +22,7 @@ export default function App() {
     addGlobalKey,
     newKeys,
     renameFile,
+    deleteGlobalKey,
   } = useAudit();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -101,7 +102,11 @@ export default function App() {
         </div>
         {allKeys.map((key) => (
           <div key={key} className="contents group">
-            <SmartKeyCell translationKey={key} isNew={newKeys.includes(key)} />
+            <SmartKeyCell
+              translationKey={key}
+              isNew={newKeys.includes(key)}
+              onDelete={deleteGlobalKey}
+            />
             {files.map((file) => (
               <SmartCell
                 key={file.name}

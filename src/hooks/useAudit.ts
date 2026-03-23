@@ -113,6 +113,26 @@ export const useAudit = () => {
     return [...newKeys, ...Array.from(existing).sort()];
   }, [files, newKeys]);
 
+  const deleteGlobalKey = (keyToDelete: string) => {
+    setFiles((prev) =>
+      prev.map((file) => {
+        const newData = { ...file.flatData };
+        delete newData[keyToDelete];
+
+        // Also remove from schema to keep things clean
+        const newSchema = new Map(file.schema);
+        newSchema.delete(keyToDelete);
+
+        return {
+          ...file,
+          flatData: newData,
+          schema: newSchema,
+        };
+      })
+    );
+    setNewKeys((prev) => prev.filter((k) => k !== keyToDelete));
+  };
+
   return {
     files,
     setFiles,
@@ -121,6 +141,7 @@ export const useAudit = () => {
     allKeys,
     updateKey,
     addGlobalKey,
+    deleteGlobalKey,
     newKeys,
   };
 };
