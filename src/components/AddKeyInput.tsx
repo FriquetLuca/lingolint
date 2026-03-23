@@ -14,18 +14,35 @@ export default function AddKeyInput({
   placeholder,
   buttonTitle,
 }: AddKeyInputProps) {
+  const [error, setError] = useState<string | null>(null);
   const [val, setVal] = useState('');
+
+  const validate = (val: string) => {
+    if (existingKeys.includes(val)) return 'Key already exists';
+    if (existingKeys.some((k) => val.startsWith(k + '.')))
+      return 'Parent is a string';
+    if (existingKeys.some((k) => k.startsWith(val + '.')))
+      return 'Key is a parent of existing data';
+    return null;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setVal(v);
+    setError(validate(v));
+  };
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    if (val && !existingKeys.includes(val)) {
-      onAdd(val);
-      setVal('');
-    } else if (existingKeys.includes(val)) {
-      alert('Key already exists!');
+    if (val.length > 0) {
+      if (!error) {
+        onAdd(val);
+        setVal('');
+      } else {
+        alert(error);
+      }
     }
   };
-
   return (
     <form
       onSubmit={handleSubmit}
@@ -33,7 +50,7 @@ export default function AddKeyInput({
     >
       <input
         value={val}
-        onChange={(e) => setVal(e.target.value)}
+        onChange={handleChange}
         placeholder={placeholder}
         className="bg-transparent border-none outline-none px-2 text-sm text-slate-200 w-48 placeholder:text-slate-600"
       />
