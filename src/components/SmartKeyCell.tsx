@@ -20,7 +20,7 @@ export default function SmartKeyCell({
 
           {isNew && (
             <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-[9px] font-bold text-emerald-500 uppercase tracking-tighter animate-pulse border border-emerald-500/20">
-              {t('key_path_cell.new')}
+              {t('smart_key_cell.new')}
             </span>
           )}
         </div>
