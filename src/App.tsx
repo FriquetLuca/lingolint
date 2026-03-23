@@ -11,9 +11,13 @@ import Header from './components/Header';
 import SmartTable from './components/SmartTable';
 import { useTranslation } from 'react-i18next';
 import AddKeyInput from './components/AddKeyInput';
+import ConfirmModal from './components/ConfirmModal';
+import Modal, { type ModalConfig } from './components/Modal';
 
 export default function App() {
   const { t } = useTranslation();
+
+  const [modalConfig, setModalConfig] = useState<ModalConfig | null>(null);
 
   const {
     files,
@@ -27,7 +31,7 @@ export default function App() {
     createEmptyFile,
     removeFile,
     moveFile,
-  } = useAudit();
+  } = useAudit({ setModalConfig });
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -75,74 +79,120 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950 text-slate-200 font-sans">
-      <DraggingOverlay
-        {...{
-          isDragging,
-        }}
-      />
-      <Header
-        {...{
-          isFileOpen: files.length > 0,
-          fileKeys: allKeys,
-          handleDragOver,
-          handleDragLeave,
-          handleDrop,
-          addGlobalKey,
-          handleExport,
-          addFiles,
-          createEmptyFile,
-        }}
-      />
-      <SmartTable
-        {...{
-          columnCount: files.length,
-          handleDragOver,
-          handleDragLeave,
-          handleDrop,
-        }}
-      >
-        <div className="contents">
-          <div className="sticky top-0 left-0 z-50 px-4 py-2 bg-slate-800 border-b border-r border-slate-700 text-xs font-bold text-slate-400 uppercase tracking-widest min-h-11 flex items-center">
-            {files.length > 0 && (
-              <AddKeyInput
-                onAdd={addGlobalKey}
-                existingKeys={allKeys}
-                placeholder={t('app.key_placeholder')}
-                buttonTitle={t('app.button_title')}
-              />
-            )}
-          </div>
-          {files.map((f) => (
-            <EditableHeader
-              key={f.name}
-              name={f.name}
-              onRename={(newName) => renameFile(f.name, newName)}
-              onRemove={removeFile}
-              onMove={moveFile}
-            />
-          ))}
-        </div>
-        {allKeys.map((key) => (
-          <div key={key} className="contents group">
-            <SmartKeyCell
-              translationKey={key}
-              isNew={newKeys.includes(key)}
-              onDelete={deleteGlobalKey}
-            />
-            {files.map((file) => (
-              <SmartCell
-                key={file.name}
-                value={file.flatData[key]}
-                fileName={file.name}
-                translationKey={key}
-                onUpdate={updateKey}
-                filesCount={files.length}
+    <>
+      <div className="flex flex-col h-screen bg-slate-950 text-slate-200 font-sans">
+        <DraggingOverlay
+          {...{
+            isDragging,
+          }}
+        />
+        <Header
+          {...{
+            isFileOpen: files.length > 0,
+            fileKeys: allKeys,
+            handleDragOver,
+            handleDragLeave,
+            handleDrop,
+            addGlobalKey,
+            handleExport,
+            addFiles,
+            createEmptyFile,
+          }}
+        />
+        <SmartTable
+          {...{
+            columnCount: files.length,
+            handleDragOver,
+            handleDragLeave,
+            handleDrop,
+          }}
+        >
+          <div className="contents">
+            <div className="sticky top-0 left-0 z-50 px-4 py-2 bg-slate-800 border-b border-r border-slate-700 text-xs font-bold text-slate-400 uppercase tracking-widest min-h-11 flex items-center">
+              {files.length > 0 && (
+                <AddKeyInput
+                  onAdd={addGlobalKey}
+                  existingKeys={allKeys}
+                  placeholder={t('app.key_placeholder')}
+                  buttonTitle={t('app.button_title')}
+                  setModalConfig={setModalConfig}
+                />
+              )}
+            </div>
+            {files.map((f) => (
+              <EditableHeader
+                key={f.name}
+                name={f.name}
+                onRename={(newName) => renameFile(f.name, newName)}
+                onRemove={removeFile}
+                onMove={moveFile}
               />
             ))}
           </div>
-        ))}
-      </SmartTable>
-    </div>
+          {allKeys.map((key) => (
+            <div key={key} className="contents group">
+              <SmartKeyCell
+                translationKey={key}
+                isNew={newKeys.includes(key)}
+                onDelete={deleteGlobalKey}
+              />
+              {files.map((file) => (
+                <SmartCell
+                  key={file.name}
+                  value={file.flatData[key]}
+                  fileName={file.name}
+                  translationKey={key}
+                  onUpdate={updateKey}
+                  filesCount={files.length}
+                />
+              ))}
+            </div>
+          ))}
+        </SmartTable>
+      </div>
+      <ConfirmModal
+        isOpen={!!modalConfig && modalConfig.type === 'confirm'}
+        title={
+          modalConfig !== null ? t(modalConfig.title, modalConfig.datas) : ''
+        }
+        message={
+          modalConfig !== null ? t(modalConfig.message, modalConfig.datas) : ''
+        }
+        onConfirm={modalConfig?.onConfirm}
+        onClose={() => setModalConfig(null)}
+        confirmText={
+          modalConfig !== null
+            ? t(modalConfig.confirmText ?? 'modal.confirm', modalConfig.datas)
+            : t('modal.confirm')
+        }
+        cancelText={
+          modalConfig !== null
+            ? t(modalConfig.confirmText ?? 'modal.cancel', modalConfig.datas)
+            : t('modal.cancel')
+        }
+      />
+      <Modal
+        isOpen={!!modalConfig && modalConfig.type === 'error'}
+        onClose={() => setModalConfig(null)}
+        title={
+          modalConfig !== null ? t(modalConfig.title, modalConfig.datas) : ''
+        }
+        type="danger"
+      >
+        <p>
+          {modalConfig !== null
+            ? t(modalConfig.message, modalConfig.datas)
+            : undefined}
+        </p>
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={() => setModalConfig(null)}
+            className="px-4 py-2 bg-slate-800 rounded-lg hover:bg-slate-700"
+          >
+            Dismiss
+          </button>
+        </div>
+      </Modal>
+    </>
   );
 }

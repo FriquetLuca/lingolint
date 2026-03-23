@@ -1,11 +1,13 @@
 import { Plus } from 'lucide-react';
 import { useState, type SubmitEventHandler } from 'react';
+import type { ModalConfig } from './Modal';
 
 interface AddKeyInputProps {
   onAdd: (key: string) => void;
   existingKeys: string[];
   placeholder?: string | undefined;
   buttonTitle?: string | undefined;
+  setModalConfig: (config: ModalConfig) => void;
 }
 
 export default function AddKeyInput({
@@ -13,16 +15,37 @@ export default function AddKeyInput({
   existingKeys,
   placeholder,
   buttonTitle,
+  setModalConfig,
 }: AddKeyInputProps) {
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{
+    key: string;
+    data?: {} | undefined;
+  } | null>(null);
   const [val, setVal] = useState('');
 
   const validate = (val: string) => {
-    if (existingKeys.includes(val)) return 'Key already exists';
+    if (existingKeys.includes(val))
+      return {
+        key: 'key_exist',
+        data: {
+          existingKey: val,
+        },
+      };
     if (existingKeys.some((k) => val.startsWith(k + '.')))
-      return 'Parent is a string';
+      return {
+        key: 'string_parent',
+        data: {
+          existingKey: val,
+          parentKey: existingKeys.find((k) => val.startsWith(k + '.')),
+        },
+      };
     if (existingKeys.some((k) => k.startsWith(val + '.')))
-      return 'Key is a parent of existing data';
+      return {
+        key: 'is_parent',
+        data: {
+          existingKey: val,
+        },
+      };
     return null;
   };
 
@@ -39,7 +62,12 @@ export default function AddKeyInput({
         onAdd(val);
         setVal('');
       } else {
-        alert(error);
+        setModalConfig({
+          type: 'error',
+          title: 'add_key_input.error',
+          message: `add_key_input.${error.key}`,
+          datas: error.data,
+        });
       }
     }
   };

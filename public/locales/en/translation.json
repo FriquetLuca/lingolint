@@ -17,5 +17,16 @@
   "app": {
     "key_placeholder": "new.key.path...",
     "button_title": "Add Key to all files"
+  },
+  "modal": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "error": "Error"
+  },
+  "add_key_input": {
+    "error": "An error has occured",
+    "key_exist": "The key \"{{existingKey}}\" already exist.",
+    "string_parent": "\"{{parentKey}}\" is already a string and cannot have the children \"{{existingKey}}\".",
+    "is_parent": "\"{{existingKey}}\" is already a parent of existing data."
   }
 }

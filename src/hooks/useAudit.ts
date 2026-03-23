@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { getUniqueName } from '../utils/getUniqueName';
+import type { ModalConfig } from '../components/Modal';
 
 export type SchemaType = typeof Array | typeof Object;
 
@@ -9,7 +10,11 @@ export interface FileData {
   schema: Map<string, SchemaType>;
 }
 
-export const useAudit = () => {
+interface useAuditProps {
+  setModalConfig: (config: ModalConfig) => void;
+}
+
+export const useAudit = ({ setModalConfig }: useAuditProps) => {
   const [newKeys, setNewKeys] = useState<string[]>([]);
   const [files, setFiles] = useState<FileData[]>([]);
 
@@ -69,15 +74,9 @@ export const useAudit = () => {
   const addGlobalKey = (path: string) => {
     const isConflict = allKeys.some((existingKey) => {
       if (path.startsWith(existingKey + '.')) {
-        alert(
-          `Conflict: "${existingKey}" is already a string and cannot have children.`
-        );
         return true;
       }
       if (existingKey.startsWith(path + '.')) {
-        alert(
-          `Conflict: "${path}" is already an object containing "${existingKey}".`
-        );
         return true;
       }
       return false;
