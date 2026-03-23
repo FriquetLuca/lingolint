@@ -1,6 +1,7 @@
 {
   "header": {
     "add_json": "Add JSON",
+    "new_json": "New JSON",
     "export": "Export",
     "key_placeholder": "new.key.path...",
     "button_title": "Add Key to all files"
