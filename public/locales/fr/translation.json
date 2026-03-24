@@ -1,3 +1,42 @@
 {
-  "hello": "Hello World!"
+  "header": {
+    "add_json": "Ajouter un JSON",
+    "new_json": "Nouveau JSON",
+    "export": "Exporter"
+  },
+  "dragging_overlay": {
+    "release": "Lâcher pour charger"
+  },
+  "dropping_background": {
+    "label": "Glissez un fichier pour commencer"
+  },
+  "smart_key_cell": {
+    "new": "Nouveau",
+    "delete": "Supprimer la clé de tous les fichiers",
+    "delete_title": "Suppression d'une clé JSON",
+    "delete_message": "Êtes-vous sûr de vouloir supprimer \"{{translationKey}}.json\"?",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "app": {
+    "key_placeholder": "nouvelle.clé...",
+    "button_title": "Ajouter une clé à tous les fichiers"
+  },
+  "modal": {
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "error": "Erreur"
+  },
+  "add_key_input": {
+    "error": "Une erreur a eu lieu",
+    "key_exist": "La clé \"{{existingKey}}\" existe déjà.",
+    "string_parent": "\"{{parentKey}}\" est déjà un string et ne peut pas avoir pour enfant \"{{existingKey}}\".",
+    "is_parent": "\"{{existingKey}}\" est parent d'une donnée déjà existante."
+  },
+  "editable_header": {
+    "confirm_title": "Supprimer un fichier JSON",
+    "message": "Êtes-vous sûr de vouloir supprimer \"{{name}}.json\"?",
+    "yes": "Oui",
+    "no": "Non"
+  }
 }
