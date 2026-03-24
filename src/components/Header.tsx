@@ -1,4 +1,4 @@
-import { Download, Plus, TableIcon, Upload } from 'lucide-react';
+import { Download, Plus, Redo2, TableIcon, Undo2, Upload } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
@@ -9,6 +9,10 @@ interface HeaderProps {
   createEmptyFile: () => void;
   addFiles: (newFiles: File[]) => Promise<void>;
   handleExport: () => Promise<void>;
+  redo: () => void;
+  undo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
 export default function Header({
@@ -19,6 +23,10 @@ export default function Header({
   handleExport,
   addFiles,
   createEmptyFile,
+  redo,
+  undo,
+  canUndo,
+  canRedo,
 }: HeaderProps) {
   const { t } = useTranslation();
   return (
@@ -36,6 +44,22 @@ export default function Header({
       </div>
 
       <div className="flex items-center gap-4">
+        <button
+          onClick={undo}
+          disabled={!canUndo}
+          className="p-2 hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent rounded-lg text-slate-400"
+          title="Undo (Ctrl+Z)"
+        >
+          <Undo2 size={18} />
+        </button>
+        <button
+          onClick={redo}
+          disabled={!canRedo}
+          className="p-2 hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent rounded-lg text-slate-400"
+          title="Redo (Ctrl+Y)"
+        >
+          <Redo2 size={18} />
+        </button>
         <button
           onClick={createEmptyFile}
           className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-all text-sm font-medium text-slate-200"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useAudit } from './hooks/useAudit';
 import JSZip from 'jszip';
 import { rebuildJSON } from './utils/rebuildJSON';
@@ -13,11 +13,13 @@ import { useTranslation } from 'react-i18next';
 import AddKeyInput from './components/AddKeyInput';
 import ConfirmModal from './components/ConfirmModal';
 import Modal, { type ModalConfig } from './components/Modal';
+import { useHistory } from './hooks/useHistory';
 
 export default function App() {
   const { t } = useTranslation();
 
   const [modalConfig, setModalConfig] = useState<ModalConfig | null>(null);
+  const { undo, redo, pushStep, canUndo, canRedo } = useHistory();
 
   const {
     files,
@@ -31,7 +33,7 @@ export default function App() {
     createEmptyFile,
     removeFile,
     moveFile,
-  } = useAudit();
+  } = useAudit({ pushStep });
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -65,7 +67,7 @@ export default function App() {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = useCallback(async () => {
     const zip = new JSZip();
 
     files.forEach((file) => {
@@ -76,7 +78,29 @@ export default function App() {
 
     const blob = await zip.generateAsync({ type: 'blob' });
     downloadFile('lingolint-export.zip', [blob], 'application/zip');
-  };
+  }, [files]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isCtrl = e.ctrlKey || e.metaKey; // Support Mac Command key
+
+      if (isCtrl && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleExport();
+      }
+      if (isCtrl && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        undo();
+      }
+      if (isCtrl && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        redo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleExport, undo, redo]);
 
   return (
     <>
@@ -97,6 +121,10 @@ export default function App() {
             handleExport,
             addFiles,
             createEmptyFile,
+            redo,
+            undo,
+            canUndo,
+            canRedo,
           }}
         />
         <SmartTable

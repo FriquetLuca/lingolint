@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { getUniqueName } from '../utils/getUniqueName';
+import type { HistoryStep } from './useHistory';
 
 export type SchemaType = typeof Array | typeof Object;
 
@@ -9,7 +10,11 @@ export interface FileData {
   schema: Map<string, SchemaType>;
 }
 
-export const useAudit = () => {
+interface useAuditProps {
+  pushStep: (step: HistoryStep) => void;
+}
+
+export const useAudit = ({ pushStep }: useAuditProps) => {
   const [newKeys, setNewKeys] = useState<string[]>([]);
   const [files, setFiles] = useState<FileData[]>([]);
 
@@ -34,89 +39,131 @@ export const useAudit = () => {
 
   const addFiles = async (newFiles: File[]) => {
     const currentNames = files.map((f) => f.name);
-
     const parsed = await Promise.all(
       newFiles.map(async (f) => {
-        const json = JSON.parse(await f.text());
-        const { res, schema } = flatten(json);
-        const uniqueName = getUniqueName(f.name, currentNames);
-        currentNames.push(uniqueName);
+        try {
+          const json = JSON.parse(await f.text());
+          const { res, schema } = flatten(json);
+          const uniqueName = getUniqueName(f.name, currentNames);
+          currentNames.push(uniqueName);
 
-        return {
-          name: uniqueName,
-          flatData: res,
-          schema,
-        };
+          return {
+            name: uniqueName,
+            flatData: res,
+            schema,
+          };
+        } catch (err) {
+          console.error(`Failed to parse ${f.name}`, err);
+          return null;
+        }
       })
     );
-    setFiles((prev) => [...prev, ...parsed]);
+    const validFiles = parsed.filter((f): f is FileData => f !== null);
+    if (validFiles.length === 0) return;
+
+    const addedNames = validFiles.map((f) => f.name);
+    pushStep({
+      label: `Add ${validFiles.length} file(s)`,
+      redo: () => {
+        setFiles((prev) => [...prev, ...validFiles]);
+      },
+      undo: () => {
+        setFiles((prev) => prev.filter((f) => !addedNames.includes(f.name)));
+      },
+    });
   };
 
   const updateKey = (fileName: string, key: string, value: string) => {
-    setFiles((prev) =>
-      prev.map((file) => {
-        if (file.name === fileName) {
-          return {
-            ...file,
-            flatData: { ...file.flatData, [key]: value },
-          };
-        }
-        return file;
-      })
-    );
+    const oldFile = files.find((f) => f.name === fileName);
+    const oldValue = oldFile?.flatData[key] || '';
+    if (value === oldValue) {
+      return;
+    }
+    pushStep({
+      label: `Update ${key} in ${fileName}`,
+      redo: () => {
+        setFiles((prev) =>
+          prev.map((file) =>
+            file.name === fileName
+              ? { ...file, flatData: { ...file.flatData, [key]: value } }
+              : file
+          )
+        );
+      },
+      undo: () => {
+        setFiles((prev) =>
+          prev.map((file) =>
+            file.name === fileName
+              ? { ...file, flatData: { ...file.flatData, [key]: oldValue } }
+              : file
+          )
+        );
+      },
+    });
   };
 
   const addGlobalKey = (path: string) => {
-    const isConflict = allKeys.some((existingKey) => {
-      if (path.startsWith(existingKey + '.')) {
-        return true;
-      }
-      if (existingKey.startsWith(path + '.')) {
-        return true;
-      }
-      return false;
-    });
+    const isConflict = allKeys.some(
+      (k) => path.startsWith(k + '.') || k.startsWith(path + '.')
+    );
 
     if (isConflict) return;
 
-    setNewKeys((prev) => [path, ...prev]);
-    setFiles((prev) =>
-      prev.map((file) => {
-        const newSchema = new Map(file.schema);
-        const parts = path.split('.');
-
-        parts.forEach((_, index) => {
-          if (index < parts.length - 1) {
-            const parentPath = parts.slice(0, index + 1).join('.');
-            if (!newSchema.has(parentPath)) {
-              newSchema.set(parentPath, Object);
-            }
-          }
-        });
-
-        return {
-          ...file,
-          flatData: { ...file.flatData, [path]: '' },
-          schema: newSchema,
-        };
-      })
-    );
+    pushStep({
+      label: `Add key ${path}`,
+      redo: () => {
+        setNewKeys((prev) => [path, ...prev]);
+        setFiles((prev) =>
+          prev.map((file) => {
+            const newSchema = new Map(file.schema);
+            path.split('.').forEach((_, i, arr) => {
+              if (i < arr.length - 1) {
+                const p = arr.slice(0, i + 1).join('.');
+                if (!newSchema.has(p)) newSchema.set(p, Object);
+              }
+            });
+            return {
+              ...file,
+              flatData: { ...file.flatData, [path]: '' },
+              schema: newSchema,
+            };
+          })
+        );
+      },
+      undo: () => {
+        setNewKeys((prev) => prev.filter((k) => k !== path));
+        setFiles((prev) =>
+          prev.map((file) => {
+            const nextData = { ...file.flatData };
+            delete nextData[path];
+            return { ...file, flatData: nextData };
+          })
+        );
+      },
+    });
   };
 
   const renameFile = (oldName: string, newName: string) => {
     if (!newName || oldName === newName) return;
 
-    setFiles((prev) => {
-      const nameExists = prev.some((f) => f.name === newName);
-      const finalName = nameExists
-        ? getUniqueName(
-            `${newName}.json`,
-            prev.map((p) => p.name)
-          )
-        : newName;
-      return prev.map((file) =>
-        file.name === oldName ? { ...file, name: finalName } : file
-      );
+    const nameExists = files.some((f) => f.name === newName);
+    const finalName = nameExists
+      ? getUniqueName(
+          `${newName}.json`,
+          files.map((p) => p.name)
+        )
+      : newName;
+
+    pushStep({
+      label: `Rename ${oldName} to ${finalName}`,
+      redo: () =>
+        setFiles((prev) =>
+          prev.map((f) => (f.name === oldName ? { ...f, name: finalName } : f))
+        ),
+      undo: () =>
+        setFiles((prev) =>
+          prev.map((f) => (f.name === finalName ? { ...f, name: oldName } : f))
+        ),
     });
   };
 
@@ -131,48 +178,83 @@ export const useAudit = () => {
   }, [files, newKeys]);
 
   const deleteGlobalKey = (keyToDelete: string) => {
-    setFiles((prev) =>
-      prev.map((file) => {
-        const newData = { ...file.flatData };
-        delete newData[keyToDelete];
-        const newSchema = new Map(file.schema);
-        newSchema.delete(keyToDelete);
+    const deletedValues = files.map((f) => ({
+      fileName: f.name,
+      value: f.flatData[keyToDelete],
+      schema: f.schema.get(keyToDelete),
+    }));
+    const wasNewKey = newKeys.includes(keyToDelete);
 
-        return {
-          ...file,
-          flatData: newData,
-          schema: newSchema,
-        };
-      })
-    );
-    setNewKeys((prev) => prev.filter((k) => k !== keyToDelete));
+    pushStep({
+      label: `Delete key ${keyToDelete}`,
+      redo: () => {
+        setFiles((prev) =>
+          prev.map((file) => {
+            const nextData = { ...file.flatData };
+            delete nextData[keyToDelete];
+            return { ...file, flatData: nextData };
+          })
+        );
+        setNewKeys((prev) => prev.filter((k) => k !== keyToDelete));
+      },
+      undo: () => {
+        if (wasNewKey) setNewKeys((prev) => [keyToDelete, ...prev]);
+        setFiles((prev) =>
+          prev.map((file) => {
+            const record = deletedValues.find((v) => v.fileName === file.name);
+            return record
+              ? {
+                  ...file,
+                  flatData: { ...file.flatData, [keyToDelete]: record.value },
+                }
+              : file;
+          })
+        );
+      },
+    });
   };
 
   const createEmptyFile = () => {
-    setFiles((prev) => {
-      const newName = getUniqueName(
-        'new translation.json',
-        prev.map((p) => p.name)
-      );
-      const newFile: FileData = {
-        name: newName,
-        flatData: {},
-        schema: new Map(),
-      };
-      if (allKeys.length > 0) {
-        allKeys.forEach((key) => {
-          newFile.flatData[key] = '';
-        });
-      }
+    const newName = getUniqueName(
+      'new translation.json',
+      files.map((p) => p.name)
+    );
 
-      return [...prev, newFile];
+    const newFile: FileData = {
+      name: newName,
+      flatData: {},
+      schema: new Map(),
+    };
+
+    allKeys.forEach((key) => {
+      newFile.flatData[key] = '';
+    });
+
+    pushStep({
+      label: `Create empty file: ${newName}`,
+      redo: () => {
+        setFiles((prev) => [...prev, newFile]);
+      },
+      undo: () => {
+        setFiles((prev) => prev.filter((f) => f.name !== newName));
+      },
     });
   };
 
   const removeFile = (fileName: string) => {
-    setFiles((prev) => {
-      const updated = prev.filter((f) => f.name !== fileName);
-      return updated;
+    const fileToRemove = files.find((f) => f.name === fileName);
+    if (!fileToRemove) return;
+    const originalIndex = files.findIndex((f) => f.name === fileName);
+
+    pushStep({
+      label: `Remove file ${fileName}`,
+      redo: () => setFiles((prev) => prev.filter((f) => f.name !== fileName)),
+      undo: () =>
+        setFiles((prev) => {
+          const next = [...prev];
+          next.splice(originalIndex, 0, fileToRemove);
+          return next;
+        }),
     });
   };
 
@@ -181,19 +263,21 @@ export const useAudit = () => {
     targetName: string,
     side: 'left' | 'right'
   ) => {
-    setFiles((prev) => {
-      const newFiles = [...prev];
-      const draggedIdx = newFiles.findIndex((f) => f.name === draggedName);
-      let targetIdx = newFiles.findIndex((f) => f.name === targetName);
+    const originalOrder = [...files];
 
-      if (draggedIdx === -1 || targetIdx === -1) return prev;
-
-      const [removed] = newFiles.splice(draggedIdx, 1);
-      targetIdx = newFiles.findIndex((f) => f.name === targetName);
-      const finalIdx = side === 'right' ? targetIdx + 1 : targetIdx;
-
-      newFiles.splice(finalIdx, 0, removed);
-      return newFiles;
+    pushStep({
+      label: `Move ${draggedName}`,
+      redo: () => {
+        setFiles((prev) => {
+          const next = [...prev];
+          const dIdx = next.findIndex((f) => f.name === draggedName);
+          const [removed] = next.splice(dIdx, 1);
+          const tIdx = next.findIndex((f) => f.name === targetName);
+          next.splice(side === 'right' ? tIdx + 1 : tIdx, 0, removed);
+          return next;
+        });
+      },
+      undo: () => setFiles(originalOrder),
     });
   };
 
