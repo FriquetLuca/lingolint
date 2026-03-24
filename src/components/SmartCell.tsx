@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import { moveLine } from '../utils/moveLine';
+import { textAreaTab } from '../utils/textAreaTab';
+import { moveCursorToLineEdge } from '../utils/moveCursorToLineEdge';
+import { moveCursorWord } from '../utils/moveCursorWord';
 
 interface SmartCellProps {
   value: string;
@@ -38,6 +42,21 @@ export function SmartCell({
     adjustHeight();
   }, [currentValue, filesCount]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    moveLine({
+      e,
+      content: currentValue,
+      textarea,
+      setContent: setCurrentValue,
+    });
+    textAreaTab({ textarea, e, tabIndent: 4, setContent: setCurrentValue });
+    moveCursorToLineEdge({ e, textarea });
+    moveCursorWord({ e, textarea, content: currentValue });
+  };
+
   return (
     <div className="p-1 h-full border-b border-r border-slate-700 relative group-hover:bg-slate-800 transition-colors">
       <div className="h-full w-full bg-cyan-950 rounded-2xl border border-slate-700">
@@ -45,6 +64,7 @@ export function SmartCell({
           ref={textareaRef}
           value={currentValue}
           rows={1}
+          onKeyDown={handleKeyDown}
           onChange={(e) => setCurrentValue(e.target.value)}
           onBlur={(e) => onUpdate(fileName, translationKey, e.target.value)}
           className="w-full p-2 text-sm font-sans leading-tight outline-none block overflow-hidden resize-none bg-transparent text-slate-300 min-h-0 h-auto"
