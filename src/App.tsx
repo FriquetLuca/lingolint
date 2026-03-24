@@ -14,12 +14,14 @@ import AddKeyInput from './components/AddKeyInput';
 import ConfirmModal from './components/ConfirmModal';
 import Modal, { type ModalConfig } from './components/Modal';
 import { useHistory } from './hooks/useHistory';
+import ResizeHandle from './components/ResizeHandle';
 
 export default function App() {
   const { t } = useTranslation();
 
   const [modalConfig, setModalConfig] = useState<ModalConfig | null>(null);
   const { undo, redo, pushStep, canUndo, canRedo } = useHistory();
+  const [columnWidths, setColumnWidths] = useState<number[]>([]);
 
   const {
     files,
@@ -34,6 +36,25 @@ export default function App() {
     removeFile,
     moveFile,
   } = useAudit({ pushStep });
+
+  if (files.length > 0 && columnWidths.length !== files.length + 1) {
+    const newWidths = new Array(files.length + 1).fill(300);
+
+    // If we already had some widths, preserve them and only add/remove for new files
+    if (columnWidths.length > 0) {
+      // This logic keeps existing widths if you just added ONE file
+      for (
+        let i = 0;
+        i < Math.min(columnWidths.length, newWidths.length);
+        i++
+      ) {
+        newWidths[i] = columnWidths[i];
+      }
+    }
+
+    setColumnWidths(newWidths);
+  }
+
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -102,6 +123,20 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleExport, undo, redo]);
 
+  const gridTemplateColumns =
+    columnWidths.length > 0
+      ? columnWidths
+          .map((w, i) => `${i === 0 ? Math.max(w, 300) : Math.max(w, 200)}px`)
+          .join(' ')
+      : `300px repeat(${files.length}, 600px)`;
+
+  const handleColumnResize = (index: number, newWidth: number) => {
+    setColumnWidths((prev) => {
+      const next = [...prev];
+      next[index] = newWidth;
+      return next;
+    });
+  };
   return (
     <>
       <div className="flex flex-col h-screen bg-slate-950 text-slate-200 font-sans">
@@ -133,6 +168,7 @@ export default function App() {
             handleDragOver,
             handleDragLeave,
             handleDrop,
+            gridTemplateColumns,
           }}
         >
           <div className="contents">
@@ -146,8 +182,9 @@ export default function App() {
                   setModalConfig={setModalConfig}
                 />
               )}
+              <ResizeHandle onResize={(w) => handleColumnResize(0, w)} />
             </div>
-            {files.map((f) => (
+            {files.map((f, i) => (
               <EditableHeader
                 key={f.name}
                 name={f.name}
@@ -155,6 +192,8 @@ export default function App() {
                 onRemove={removeFile}
                 onMove={moveFile}
                 setModalConfig={setModalConfig}
+                columnIndex={i}
+                handleColumnResize={handleColumnResize}
               />
             ))}
           </div>
@@ -165,8 +204,9 @@ export default function App() {
                 isNew={newKeys.includes(key)}
                 onDelete={deleteGlobalKey}
                 setModalConfig={setModalConfig}
+                handleColumnResize={handleColumnResize}
               />
-              {files.map((file) => (
+              {files.map((file, i) => (
                 <SmartCell
                   key={file.name}
                   value={file.flatData[key]}
@@ -174,6 +214,8 @@ export default function App() {
                   translationKey={key}
                   onUpdate={updateKey}
                   filesCount={files.length}
+                  columnIndex={i}
+                  handleColumnResize={handleColumnResize}
                 />
               ))}
             </div>

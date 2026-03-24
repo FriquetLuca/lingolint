@@ -3,6 +3,7 @@ import { moveLine } from '../utils/moveLine';
 import { textAreaTab } from '../utils/textAreaTab';
 import { moveCursorToLineEdge } from '../utils/moveCursorToLineEdge';
 import { moveCursorWord } from '../utils/moveCursorWord';
+import ResizeHandle from './ResizeHandle';
 
 interface SmartCellProps {
   value: string;
@@ -10,6 +11,8 @@ interface SmartCellProps {
   translationKey: string;
   onUpdate: (fileName: string, key: string, val: string) => void;
   filesCount: number;
+  columnIndex: number;
+  handleColumnResize: (index: number, newWidth: number) => void;
 }
 
 export function SmartCell({
@@ -18,6 +21,8 @@ export function SmartCell({
   translationKey,
   onUpdate,
   filesCount,
+  columnIndex,
+  handleColumnResize,
 }: SmartCellProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [prevValue, setPrevValue] = useState(value);
@@ -72,6 +77,7 @@ export function SmartCell({
           onInput={adjustHeight}
         />
       </div>
+      <ResizeHandle onResize={(w) => handleColumnResize(columnIndex + 1, w)} />
     </div>
   );
 }

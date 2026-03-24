@@ -1,6 +1,7 @@
 import { Edit2, Check, X, GripVertical } from 'lucide-react';
 import { useState } from 'react';
 import type { ModalConfig } from './Modal';
+import ResizeHandle from './ResizeHandle';
 
 interface EditableHeaderProps {
   name: string;
@@ -12,6 +13,8 @@ interface EditableHeaderProps {
     dropSide: 'left' | 'right'
   ) => void;
   setModalConfig: (config: ModalConfig) => void;
+  columnIndex: number;
+  handleColumnResize: (index: number, newWidth: number) => void;
 }
 
 export default function EditableHeader({
@@ -20,6 +23,8 @@ export default function EditableHeader({
   onRemove,
   onMove,
   setModalConfig,
+  columnIndex,
+  handleColumnResize,
 }: EditableHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(name);
@@ -143,6 +148,7 @@ export default function EditableHeader({
           )}
         </div>
       </div>
+      <ResizeHandle onResize={(w) => handleColumnResize(columnIndex + 1, w)} />
     </div>
   );
 }

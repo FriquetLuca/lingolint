@@ -6,6 +6,7 @@ interface SmartTableProps {
   handleDragLeave?: React.DragEventHandler<HTMLElement> | undefined;
   handleDrop?: React.DragEventHandler<HTMLElement> | undefined;
   children: React.ReactNode;
+  gridTemplateColumns: string;
 }
 
 export default function SmartTable({
@@ -14,6 +15,7 @@ export default function SmartTable({
   handleDragOver,
   handleDragLeave,
   handleDrop,
+  gridTemplateColumns,
 }: SmartTableProps) {
   return (
     <main
@@ -29,7 +31,7 @@ export default function SmartTable({
           <div
             className="grid border border-slate-800 bg-slate-900 relative"
             style={{
-              gridTemplateColumns: `300px repeat(${columnCount}, 600px)`,
+              gridTemplateColumns,
               overflow: 'visible',
             }}
           >

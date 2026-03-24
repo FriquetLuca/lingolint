@@ -1,12 +1,14 @@
 import { Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ModalConfig } from './Modal';
+import ResizeHandle from './ResizeHandle';
 
 interface SmartKeyCellProps {
   translationKey: string;
   isNew?: boolean;
   onDelete: (keyToDelete: string) => void;
   setModalConfig: (config: ModalConfig) => void;
+  handleColumnResize: (index: number, newWidth: number) => void;
 }
 
 export default function SmartKeyCell({
@@ -14,6 +16,7 @@ export default function SmartKeyCell({
   isNew,
   onDelete,
   setModalConfig,
+  handleColumnResize,
 }: SmartKeyCellProps) {
   const { t } = useTranslation();
   return (
@@ -50,6 +53,7 @@ export default function SmartKeyCell({
           <Trash2 size={16} />
         </button>
       </div>
+      <ResizeHandle onResize={(w) => handleColumnResize(0, w)} />
     </div>
   );
 }
