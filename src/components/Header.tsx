@@ -1,5 +1,6 @@
 import { Download, Plus, Redo2, TableIcon, Undo2, Upload } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface HeaderProps {
   isFileOpen: boolean;
@@ -88,6 +89,7 @@ export default function Header({
             <Download size={16} /> {t('header.export')}
           </button>
         )}
+        <LanguageSwitcher />
       </div>
     </header>
   );

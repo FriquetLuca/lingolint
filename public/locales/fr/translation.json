@@ -1,6 +1,6 @@
 {
   "header": {
-    "add_json": "Ajouter un JSON",
+    "add_json": "Ajouter JSON",
     "new_json": "Nouveau JSON",
     "export": "Exporter"
   },
@@ -8,7 +8,7 @@
     "release": "Lâcher pour charger"
   },
   "dropping_background": {
-    "label": "Glissez un fichier pour commencer"
+    "label": "Glissez des fichiers pour commencer"
   },
   "smart_key_cell": {
     "new": "Nouveau",
